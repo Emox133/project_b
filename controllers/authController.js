@@ -5,51 +5,44 @@ const signToken = require('../utils/signToken')
 const {promisify} = require('util')
 const jwt = require('jsonwebtoken')
 
-//Registracija
 exports.signup = catchAsync(async(req, res, next) => {
-    const newUser = await User.create({
+    const newUser = {
         firstName: req.body.firstName,
         lastName: req.body.lastName,
-        username: req.body.username,
         email: req.body.email,
+        username: req.body.username,
         password: req.body.password,
         confirmPassword: req.body.confirmPassword
-    });
-
-    // Sign token
-    const token = signToken(newUser._id)
-
-    res.status(201).json({
-        message: 'success',
-        token
-    })
-});
-
-//* Prijava
-exports.login = catchAsync(async(req, res, next) => {
-    // 1. Get the email and password 
-    const {email, password} = req.body;
-
-    if(!email || !password) {
-       return next(new AppError('Molimo vas unesite email i lozinku.', 400))
     }
 
-    // 2. Compare the passwords
-    const user = await User.findOne({email}).select('+password');
-
-    if(!user || !await user.comparePasswords(password.toString(), user.password)) {
-       return next(new AppError('Netačan email ili lozinka.', 400))
-    }
-
-    // 3) Sign token
+    const user = await User.create(newUser)
     const token = signToken(user._id)
 
     res.status(201).json({
         message: 'success',
         token
     })
-});
+})
 
+exports.login = catchAsync(async(req, res, next) => {
+    const {email, password} = req.body
+
+    if(!email && !password) {
+        return next(new AppError('Molimo vas ispunite neophodna polja.', 400))
+    }
+
+    const user = await User.findOne({email}).select('+password');
+
+    if(!user || !await user.comparePasswords(password, user.password)) {
+        return next(new AppError('Netačan email ili lozinka.', 400))
+    }
+
+    const token = signToken(user._id)
+
+    res.status(201).json({
+        token
+    })
+})
 
 
 exports.protectRoutes = catchAsync(async(req, res, next) => {
