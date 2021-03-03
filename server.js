@@ -14,7 +14,7 @@ mongoose.connect(DB,{
     useFindAndModify: false,
     useCreateIndex: true
 }, () => {
-    console.log('DB connection successfull...')
+    console.log('DB connection successfull')
 })
 
 const PORT = process.env.PORT || 6000
