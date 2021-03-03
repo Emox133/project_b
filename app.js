@@ -2,9 +2,11 @@ const express = require('express')
 const usersRouter = require('./routes/usersRouter')
 const postsRouter = require('./routes/postsRouter')
 const globalErrorHandler = require('./controllers/errorController')
+const cors = require('cors')
 
 const app = express()
 
+app.use(cors())
 app.use(express.json())
 
 // ROUTES
